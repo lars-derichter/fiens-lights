@@ -41,9 +41,14 @@ LED Strip GND                 → Common Ground
 ```
 
 _Notes:_
-- _The 470Ω resistor protects the LED strip's data input and improves signal integrity by reducing reflections._
-- _The 1000µF capacitor (6.3V or higher) should be placed as close as possible to the LED strip's power input. This prevents voltage drops and flicker caused by sudden current surges when LEDs turn on._
-- _**Important:** Electrolytic capacitors are polarized - connect positive (+) to 5V and negative (-) to GND. Reverse polarity can damage the capacitor._
+
+- _The 470Ω resistor protects the LED strip's data input and improves signal
+  integrity by reducing reflections._
+- _The 1000µF capacitor (6.3V or higher) should be placed as close as possible
+  to the LED strip's power input. This prevents voltage drops and flicker caused
+  by sudden current surges when LEDs turn on._
+- _**Important:** Electrolytic capacitors are polarized - connect positive (+)
+  to 5V and negative (-) to GND. Reverse polarity can damage the capacitor._
 
 ### Potentiometers
 
@@ -64,8 +69,8 @@ Speed Potentiometer (POT 3):
   Right Pin  → 5V
 ```
 
-_Note: This wiring gives intuitive left-to-right control (0→1023). You can reverse
-GND/5V if you prefer the opposite direction._
+_Note: This wiring gives intuitive left-to-right control (0→1023). You can
+reverse GND/5V if you prefer the opposite direction._
 
 ### Push Button
 
@@ -216,9 +221,12 @@ Button pressed! Switching to effect 1: White Light
 ### Speed Range
 
 - Adjust in `readSpeedFromPot()` function (line 86)
-- Default: `map(filtered, 0, 1023, 1000, 10)` (pot left = 1000ms very slow, pot right = 10ms fast)
-- For overall slower effects: Use higher values (e.g., `map(filtered, 0, 1023, 2000, 50)`)
-- For overall faster effects: Use lower values (e.g., `map(filtered, 0, 1023, 500, 5)`)
+- Default: `map(filtered, 0, 1023, 1000, 10)` (pot left = 1000ms very slow, pot
+  right = 10ms fast)
+- For overall slower effects: Use higher values (e.g.,
+  `map(filtered, 0, 1023, 2000, 50)`)
+- For overall faster effects: Use lower values (e.g.,
+  `map(filtered, 0, 1023, 500, 5)`)
 
 ### Smoothing
 
@@ -230,16 +238,20 @@ Button pressed! Switching to effect 1: White Light
 
 ### Porting to Other Arduino-Compatible Boards
 
-This project can be easily ported to other boards (Arduino Uno, ESP32, ESP8266, etc.):
+This project can be easily ported to other boards (Arduino Uno, ESP32, ESP8266,
+etc.):
 
 **Step 1: Adjust pin assignments** in [src/main.cpp](src/main.cpp) (lines 5-14):
-- `LED_PIN` - Any PWM-capable digital pin (not actually used for PWM, but good practice)
+
+- `LED_PIN` - Any PWM-capable digital pin (not actually used for PWM, but good
+  practice)
 - `BUTTON_PIN` - Any digital pin with interrupt capability recommended
 - `POT_PIN_*` - Any analog input pins (A0-A7 on most boards)
 
 **Step 2: Board-specific setup:**
 
 **Using PlatformIO:**
+
 1. Edit `platformio.ini` and change the `board` line:
    ```ini
    [env:uno]
@@ -248,15 +260,19 @@ This project can be easily ported to other boards (Arduino Uno, ESP32, ESP8266, 
 2. PlatformIO will automatically handle board-specific compilation
 
 **Using Arduino IDE:**
+
 1. Select your board from **Tools → Board**
 2. Verify pin assignments are valid for your board (check pinout diagram)
 3. Upload as normal
 
 **Important considerations:**
-- **Memory**: Boards with less than 2KB SRAM may struggle (Arduino Uno works fine)
-- **Voltage levels**: ESP boards use 3.3V logic - use level shifter for 5V NeoPixels
-- **ADC resolution**: ESP32 has 12-bit ADC (0-4095) instead of 10-bit - may need to adjust
-  `map()` functions or use `analogReadResolution(10)` on ESP32
+
+- **Memory**: Boards with less than 2KB SRAM may struggle (Arduino Uno works
+  fine)
+- **Voltage levels**: ESP boards use 3.3V logic - use level shifter for 5V
+  NeoPixels
+- **ADC resolution**: ESP32 has 12-bit ADC (0-4095) instead of 10-bit - may need
+  to adjust `map()` functions or use `analogReadResolution(10)` on ESP32
 - **Pin capabilities**: Not all pins support analog input or pull-up resistors
 
 ## Troubleshooting
@@ -320,14 +336,17 @@ void myNewEffect()
 
 - Built with Arduino and Adafruit NeoPixel library
 - Designed for Arduino Nano with WS2812B LED strips
+- I had some help from [Claude Code](https://claude.com/product/claude-code)
+  while creating this project.
 
 ## License
 
-This project is released into the public domain under the [Unlicense](https://unlicense.org/).
+This project is released into the public domain under the
+[Unlicense](https://unlicense.org/).
 
-You are free to use, modify, distribute, and do whatever you want with this code,
-with no restrictions or obligations whatsoever. See the [LICENSE](LICENSE) file
-for details.
+You are free to use, modify, distribute, and do whatever you want with this
+code, with no restrictions or obligations whatsoever. See the [LICENSE](LICENSE)
+file for details.
 
 ---
 

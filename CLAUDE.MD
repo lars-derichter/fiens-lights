@@ -14,12 +14,14 @@ This document provides technical context for AI assistants (like Claude Code) wo
 ## Architecture
 
 ### Hardware Interface
-- **NeoPixel Strip**: Pin 6, 12 LEDs (configurable via `LED_COUNT`)
+- **NeoPixel Strip**: Pin 6 (via 470Ω resistor), 12 LEDs (configurable via `LED_COUNT`)
+  - **470Ω Resistor**: Between Pin 6 and LED data line (signal protection)
+  - **1000µF Capacitor**: Across LED strip 5V/GND (power stability, prevents brownouts)
 - **Button**: Pin 2 with internal pull-up (active LOW)
 - **Potentiometers** (all 10kΩ):
   - A0: Brightness (0-1023 → 0-255)
   - A1: Hue/Warmth (0-1023 → 0-65535 or RGB values)
-  - A2: Speed (0-1023 → 10-100ms delay)
+  - A2: Speed (0-1023 → 1000-10ms delay, inverted for intuitive control)
 
 ### Software Architecture
 
@@ -29,7 +31,7 @@ main.cpp
 ├── Helper Functions (lines 28-88)
 │   ├── readBrightnessFromPot() → uint8_t
 │   ├── readHueFromPot() → uint16_t
-│   └── readSpeedFromPot() → uint8_t
+│   └── readSpeedFromPot() → uint16_t
 ├── Effect Functions (lines 90-426)
 │   ├── effectOff()
 │   ├── whiteLight()
@@ -130,7 +132,7 @@ filtered = (filtered * 7 + raw) / 8;
 
      uint8_t brightness = readBrightnessFromPot();
      uint16_t hue = readHueFromPot();
-     uint8_t speed = readSpeedFromPot();
+     uint16_t speed = readSpeedFromPot();
 
      // Debug output
      static unsigned long lastPrint = 0;
@@ -170,15 +172,17 @@ filtered = (filtered * 7 + raw) / 8;
 
 Edit `readSpeedFromPot()` line 86:
 ```cpp
-// Current: 10-100ms
-uint8_t speed = map(filtered, 0, 1023, 10, 100);
+// Current: 10-1000ms (inverted - pot left = slow, pot right = fast)
+uint16_t speed = map(filtered, 0, 1023, 1000, 10);
 
-// Faster effects:
-uint8_t speed = map(filtered, 0, 1023, 5, 50);
+// Overall slower effects:
+uint16_t speed = map(filtered, 0, 1023, 2000, 50);
 
-// Slower effects:
-uint8_t speed = map(filtered, 0, 1023, 50, 200);
+// Overall faster effects:
+uint16_t speed = map(filtered, 0, 1023, 500, 5);
 ```
+
+**Important:** The speed mapping is inverted (high pot value = low delay = fast) for intuitive control. The return type is `uint16_t` to accommodate delays >255ms.
 
 ### Changing LED Count
 
@@ -303,7 +307,7 @@ filtered = (filtered * 15 + raw) / 16;
 
 ## Performance Notes
 
-- **Loop frequency:** ~100Hz when effects use 10ms delay
+- **Loop frequency:** Variable, 1-100Hz depending on speed pot setting (10-1000ms delay)
 - **Button check frequency:** Every loop iteration
 - **Pot read frequency:** Every effect iteration (includes smoothing)
 - **Serial output frequency:** 1Hz per effect
@@ -331,16 +335,18 @@ This project evolved through these key stages:
 5. Added white light with color temperature
 6. Expanded to 7 effects with comprehensive debugging
 7. Added extensive documentation (README.md, CLAUDE.MD)
+8. Added hardware protection (470Ω resistor, 1000µF capacitor)
+9. Improved speed control: inverted mapping (10-1000ms) for intuitive feel
 
 ## Quick Reference: Pin Assignments
 
 | Component | Pin | Direction | Notes |
 |-----------|-----|-----------|-------|
-| NeoPixel Data | D6 | Output | PWM capable, but not used for PWM |
+| NeoPixel Data | D6 | Output | Via 470Ω resistor; PWM capable, but not used for PWM |
 | Button | D2 | Input | Pull-up enabled, active LOW |
 | Brightness Pot | A0 | Input | Analog 0-1023 |
 | Hue Pot | A1 | Input | Analog 0-1023 |
-| Speed Pot | A2 | Input | Analog 0-1023 |
+| Speed Pot | A2 | Input | Analog 0-1023, inverted mapping (low=slow) |
 
 ## Critical: Before Committing Changes
 
