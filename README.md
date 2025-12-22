@@ -21,6 +21,8 @@ This project provides **7 different lighting effects** with intuitive control:
 - **NeoPixel LED Strip** (WS2812/WS2812B) - 12 LEDs (configurable)
 - **3x Potentiometers** (5kΩ or 10kΩ linear)
 - **1x Push Button** (tactile switch)
+- **1x 470Ω Resistor** (for LED data line protection)
+- **1x 1000µF Electrolytic Capacitor** (6.3V or higher, for power stability)
 - **Breadboard and jumper wires**
 - **Power supply** (5V, adequate for your LED strip)
 
@@ -29,10 +31,19 @@ This project provides **7 different lighting effects** with intuitive control:
 ### NeoPixel LED Strip
 
 ```
-LED Strip Data Pin → Arduino Pin 6
-LED Strip 5V       → 5V Power Supply
-LED Strip GND      → Common Ground
+Arduino Pin 6 → 470Ω Resistor → LED Strip Data Pin
+LED Strip 5V                  → 5V Power Supply
+LED Strip GND                 → Common Ground
+
+1000µF Capacitor:
+  Positive (+) → LED Strip 5V (near strip input)
+  Negative (-) → LED Strip GND (near strip input)
 ```
+
+_Notes:_
+- _The 470Ω resistor protects the LED strip's data input and improves signal integrity by reducing reflections._
+- _The 1000µF capacitor (6.3V or higher) should be placed as close as possible to the LED strip's power input. This prevents voltage drops and flicker caused by sudden current surges when LEDs turn on._
+- _**Important:** Electrolytic capacitors are polarized - connect positive (+) to 5V and negative (-) to GND. Reverse polarity can damage the capacitor._
 
 ### Potentiometers
 
