@@ -130,7 +130,7 @@ power supply (not USB power) to avoid overloading the Arduino.
 | -------------- | --- | ------------------------------------------------------------------------------------------------------------ |
 | **Brightness** | A0  | Controls overall brightness (0-255) for all effects                                                          |
 | **Hue/Warmth** | A1  | Effect-dependent:<br>• White Light: Color temperature (warm to cool)<br>• Other effects: Color hue selection |
-| **Speed**      | A2  | Controls animation speed (10-100ms delay)                                                                    |
+| **Speed**      | A2  | Controls animation speed (10-1000ms delay, left = slowest)                                                   |
 
 ## Effect Details
 
@@ -216,9 +216,9 @@ Button pressed! Switching to effect 1: White Light
 ### Speed Range
 
 - Adjust in `readSpeedFromPot()` function (line 86)
-- Default: `map(filtered, 0, 1023, 10, 100)` (10-100ms)
-- For faster effects: Use lower values (e.g., 5-50ms)
-- For slower effects: Use higher values (e.g., 50-200ms)
+- Default: `map(filtered, 0, 1023, 1000, 10)` (pot left = 1000ms very slow, pot right = 10ms fast)
+- For overall slower effects: Use higher values (e.g., `map(filtered, 0, 1023, 2000, 50)`)
+- For overall faster effects: Use lower values (e.g., `map(filtered, 0, 1023, 500, 5)`)
 
 ### Smoothing
 

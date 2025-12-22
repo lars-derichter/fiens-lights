@@ -66,8 +66,8 @@ uint16_t readHueFromPot()
   return (uint16_t)hue;
 }
 
-// --- Helper: read speed knob and convert to delay time (10..100ms) ---
-uint8_t readSpeedFromPot()
+// --- Helper: read speed knob and convert to delay time (10..1000ms) ---
+uint16_t readSpeedFromPot()
 {
   // Multiple dummy reads to fully settle ADC when switching pins
   for (int i = 0; i < 3; i++) {
@@ -82,8 +82,8 @@ uint8_t readSpeedFromPot()
   static int filtered = 512; // Start at mid speed
   filtered = (filtered * 7 + raw) / 8;
 
-  // Map 0..1023 to 10..100 (delay in ms - lower = faster)
-  uint8_t speed = map(filtered, 0, 1023, 10, 100);
+  // Map 0..1023 to 1000..10 (delay in ms - lower = slower, higher = faster)
+  uint16_t speed = map(filtered, 0, 1023, 1000, 10);
   return speed;
 }
 
