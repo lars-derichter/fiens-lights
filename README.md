@@ -24,7 +24,9 @@ This project provides **8 different lighting effects** with intuitive control:
 - **3x Potentiometers** (5kΩ or 10kΩ linear)
 - **1x Push Button** (tactile switch)
 - **1x 470Ω Resistor** (for LED data line protection)
-- **1x 1000µF Electrolytic Capacitor** (6.3V or higher, for power stability)
+- **1x Electrolytic Capacitor** (6.3V or higher, for power stability)
+  - 220µF - 470µF: Suitable for ≤12 LEDs
+  - 1000µF: Recommended for larger setups or longer wires
 - **Breadboard and jumper wires**
 - **Power supply** (5V, adequate for your LED strip)
 
@@ -39,7 +41,7 @@ Arduino Pin 6 → 470Ω Resistor → LED Strip Data Pin
 LED Strip 5V                  → 5V Power Supply
 LED Strip GND                 → Common Ground
 
-1000µF Capacitor:
+Capacitor (220µF - 1000µF):
   Positive (+) → LED Strip 5V (near strip input)
   Negative (-) → LED Strip GND (near strip input)
 ```
@@ -48,9 +50,11 @@ _Notes:_
 
 - _The 470Ω resistor protects the LED strip's data input and improves signal
   integrity by reducing reflections._
-- _The 1000µF capacitor (6.3V or higher) should be placed as close as possible
-  to the LED strip's power input. This prevents voltage drops and flicker caused
-  by sudden current surges when LEDs turn on._
+- _The capacitor (220µF-1000µF, 6.3V or higher) should be placed as close as
+  possible to the LED strip's power input. This prevents voltage drops and
+  flicker caused by sudden current surges when LEDs turn on. 220µF-470µF is
+  sufficient for small setups (≤12 LEDs), while 1000µF is recommended for larger
+  installations or longer wire runs._
 - _**Important:** Electrolytic capacitors are polarized - connect positive (+)
   to 5V and negative (-) to GND. Reverse polarity can damage the capacitor._
 

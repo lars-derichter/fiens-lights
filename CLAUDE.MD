@@ -16,7 +16,8 @@ This document provides technical context for AI assistants (like Claude Code) wo
 ### Hardware Interface
 - **NeoPixel Strip**: Pin 6 (via 470Ω resistor), 12 LEDs (configurable via `LED_COUNT`)
   - **470Ω Resistor**: Between Pin 6 and LED data line (signal protection)
-  - **1000µF Capacitor**: Across LED strip 5V/GND (power stability, prevents brownouts)
+  - **Capacitor (220µF-1000µF)**: Across LED strip 5V/GND (power stability, prevents brownouts)
+    - 220µF-470µF suitable for ≤12 LEDs; 1000µF for larger setups/longer wires
 - **Button**: Pin 2 with internal pull-up (active LOW)
 - **Potentiometers** (all 10kΩ):
   - A0: Brightness (0-1023 → 0-255)
@@ -336,7 +337,7 @@ This project evolved through these key stages:
 5. Added white light with color temperature
 6. Expanded to 7 effects with comprehensive debugging
 7. Added extensive documentation (README.md, CLAUDE.MD)
-8. Added hardware protection (470Ω resistor, 1000µF capacitor)
+8. Added hardware protection (470Ω resistor, 220µF-1000µF capacitor)
 9. Improved speed control: inverted mapping (10-1000ms) for intuitive feel
 10. Added fire effect with 6 color palettes (classic, hot, toxic, purple, ice, inferno)
 
