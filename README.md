@@ -288,7 +288,8 @@ etc.):
 
 - **ADC crosstalk**: Code includes dummy reads and settling delays
 - **Hardware fixes**:
-  - Add 0.1µF capacitor between each analog pin and GND
+  - Add 0.1µF capacitor between each analog pin and GND (place close to Arduino
+    pins, not at potentiometers)
   - Ensure solid breadboard connections
   - Use shorter wires
   - Check ground connections
