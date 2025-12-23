@@ -6,9 +6,9 @@
 #define LED_COUNT 12
 
 // Button configuration
-#define BUTTON_PIN 2
+#define BUTTON_PIN 13
 
-// Potentiometer configuration
+// Potentiometer configuration+
 #define POT_PIN_BRIGHTNESS A0
 #define POT_PIN_HUE A1
 #define POT_PIN_SPEED A2
@@ -28,7 +28,8 @@ unsigned long debounceDelay = 50;
 uint8_t readBrightnessFromPot()
 {
   // Multiple dummy reads to fully settle ADC when switching pins
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < 3; i++)
+  {
     analogRead(POT_PIN_BRIGHTNESS);
   }
   delayMicroseconds(100);
@@ -49,7 +50,8 @@ uint8_t readBrightnessFromPot()
 uint16_t readHueFromPot()
 {
   // Multiple dummy reads to fully settle ADC when switching pins
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < 3; i++)
+  {
     analogRead(POT_PIN_HUE);
   }
   delayMicroseconds(100);
@@ -70,7 +72,8 @@ uint16_t readHueFromPot()
 uint16_t readSpeedFromPot()
 {
   // Multiple dummy reads to fully settle ADC when switching pins
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < 3; i++)
+  {
     analogRead(POT_PIN_SPEED);
   }
   delayMicroseconds(100);
@@ -118,37 +121,50 @@ void whiteLight()
   // Point 7 (1023): Very cool daylight (201, 226, 255)
   uint8_t r, g, b;
 
-  if (warmth < 146) {
+  if (warmth < 146)
+  {
     // Very warm to warm amber (0-146)
     r = 255;
     g = map(warmth, 0, 146, 147, 169);
     b = map(warmth, 0, 146, 41, 87);
-  } else if (warmth < 292) {
+  }
+  else if (warmth < 292)
+  {
     // Warm amber to warm (146-292)
     r = 255;
     g = map(warmth, 146, 292, 169, 197);
     b = map(warmth, 146, 292, 87, 143);
-  } else if (warmth < 438) {
+  }
+  else if (warmth < 438)
+  {
     // Warm to soft warm (292-438)
     r = 255;
     g = map(warmth, 292, 438, 197, 214);
     b = map(warmth, 292, 438, 143, 170);
-  } else if (warmth < 585) {
+  }
+  else if (warmth < 585)
+  {
     // Soft warm to warm white (438-585)
     r = 255;
     g = map(warmth, 438, 585, 214, 241);
     b = map(warmth, 438, 585, 170, 224);
-  } else if (warmth < 731) {
+  }
+  else if (warmth < 731)
+  {
     // Warm white to slightly cool (585-731)
     r = map(warmth, 585, 731, 255, 245);
     g = map(warmth, 585, 731, 241, 243);
     b = map(warmth, 585, 731, 224, 255);
-  } else if (warmth < 877) {
+  }
+  else if (warmth < 877)
+  {
     // Slightly cool to cool (731-877)
     r = map(warmth, 731, 877, 245, 225);
     g = map(warmth, 731, 877, 243, 235);
     b = 255;
-  } else {
+  }
+  else
+  {
     // Cool to very cool (877-1023)
     r = map(warmth, 877, 1023, 225, 201);
     g = map(warmth, 877, 1023, 235, 226);
@@ -214,7 +230,7 @@ void solidHue()
   uint32_t c = strip.ColorHSV(hue, 255, 255);
 
   // Optional: gamma correction makes colors look nicer to the eye
-  //c = strip.gamma32(c);
+  // c = strip.gamma32(c);
 
   strip.setBrightness(brightness);
 
@@ -415,14 +431,26 @@ void fireEffect()
     Serial.print(" -> Palette ");
     Serial.print(palette);
     Serial.print(" (");
-    switch(palette)
+    switch (palette)
     {
-      case 0: Serial.print("Classic Fire"); break;
-      case 1: Serial.print("Hot Fire"); break;
-      case 2: Serial.print("Toxic Fire"); break;
-      case 3: Serial.print("Purple Fire"); break;
-      case 4: Serial.print("Ice Fire"); break;
-      case 5: Serial.print("Inferno"); break;
+    case 0:
+      Serial.print("Classic Fire");
+      break;
+    case 1:
+      Serial.print("Hot Fire");
+      break;
+    case 2:
+      Serial.print("Toxic Fire");
+      break;
+    case 3:
+      Serial.print("Purple Fire");
+      break;
+    case 4:
+      Serial.print("Ice Fire");
+      break;
+    case 5:
+      Serial.print("Inferno");
+      break;
     }
     Serial.print(") | Speed pot: ");
     Serial.print(rawSpeed);
@@ -438,38 +466,38 @@ void fireEffect()
   // Each palette has 3 colors: inner (bottom), middle, outer (top)
   uint16_t innerHue, middleHue, outerHue;
 
-  switch(palette)
+  switch (palette)
   {
-    case 0: // Classic Fire: Red → Orange → Yellow
-      innerHue = 0;        // Red
-      middleHue = 5461;    // Orange (30°)
-      outerHue = 10923;    // Yellow (60°)
-      break;
-    case 1: // Hot Fire: Orange → Yellow → White-ish
-      innerHue = 5461;     // Orange
-      middleHue = 10923;   // Yellow
-      outerHue = 16384;    // Yellow-white
-      break;
-    case 2: // Toxic Fire: Green → Cyan → Blue
-      innerHue = 21845;    // Green (120°)
-      middleHue = 32768;   // Cyan (180°)
-      outerHue = 43691;    // Blue (240°)
-      break;
-    case 3: // Purple Fire: Purple → Magenta → Pink
-      innerHue = 49152;    // Purple (270°)
-      middleHue = 54613;   // Magenta (300°)
-      outerHue = 60075;    // Pink (330°)
-      break;
-    case 4: // Ice Fire: Blue → Cyan → White-ish
-      innerHue = 43691;    // Blue (240°)
-      middleHue = 32768;   // Cyan (180°)
-      outerHue = 16384;    // Light cyan
-      break;
-    case 5: // Inferno: Dark Red → Red → Orange
-      innerHue = 60000;    // Dark red/maroon
-      middleHue = 0;       // Red
-      outerHue = 5461;     // Orange
-      break;
+  case 0:             // Classic Fire: Red → Orange → Yellow
+    innerHue = 0;     // Red
+    middleHue = 5461; // Orange (30°)
+    outerHue = 10923; // Yellow (60°)
+    break;
+  case 1:              // Hot Fire: Orange → Yellow → White-ish
+    innerHue = 5461;   // Orange
+    middleHue = 10923; // Yellow
+    outerHue = 16384;  // Yellow-white
+    break;
+  case 2:              // Toxic Fire: Green → Cyan → Blue
+    innerHue = 21845;  // Green (120°)
+    middleHue = 32768; // Cyan (180°)
+    outerHue = 43691;  // Blue (240°)
+    break;
+  case 3:              // Purple Fire: Purple → Magenta → Pink
+    innerHue = 49152;  // Purple (270°)
+    middleHue = 54613; // Magenta (300°)
+    outerHue = 60075;  // Pink (330°)
+    break;
+  case 4:              // Ice Fire: Blue → Cyan → White-ish
+    innerHue = 43691;  // Blue (240°)
+    middleHue = 32768; // Cyan (180°)
+    outerHue = 16384;  // Light cyan
+    break;
+  case 5:             // Inferno: Dark Red → Red → Orange
+    innerHue = 60000; // Dark red/maroon
+    middleHue = 0;    // Red
+    outerHue = 5461;  // Orange
+    break;
   }
 
   // Draw fire on each LED
@@ -480,7 +508,7 @@ void fireEffect()
 
     // Select color based on position
     uint16_t hue;
-    uint8_t sat = 255;  // Full saturation by default
+    uint8_t sat = 255; // Full saturation by default
 
     if (position < 0.33)
     {
