@@ -13,7 +13,8 @@ This project provides **8 different lighting effects** with intuitive control:
 4. **Pulse Hue** - Pulsing/breathing effect in selected color
 5. **Chase Hue** - Single LED chasing along the strip
 6. **Rainbow Fade** - Rainbow pattern with fade in/out
-7. **Fire Effect** - Realistic fire simulation with 6 color palettes (classic, hot, toxic, purple, ice, inferno)
+7. **Fire Effect** - Realistic fire simulation with 6 color palettes (classic,
+   hot, toxic, purple, ice, inferno)
 8. **White Flicker** - Random white flicker effect (3 LEDs at a time)
 
 ## Hardware Requirements
@@ -28,6 +29,8 @@ This project provides **8 different lighting effects** with intuitive control:
 - **Power supply** (5V, adequate for your LED strip)
 
 ## Wiring Diagram
+
+![Fritzing diagram of this breadboard setup](schematic/fiens-lights_bb.png)
 
 ### NeoPixel LED Strip
 
@@ -195,7 +198,8 @@ power supply (not USB power) to avoid overloading the Arduino.
   - **Inferno** (pot high): Dark Red → Red → Orange (deep volcanic fire)
 - **Speed (A2)**: Flicker rate (lower = slower flicker, higher = rapid flicker)
 - Simulates realistic fire with:
-  - Position-based color gradient (bottom LEDs = inner fire color, top LEDs = outer flame color)
+  - Position-based color gradient (bottom LEDs = inner fire color, top LEDs =
+    outer flame color)
   - Random brightness flickering (60-100% variation)
   - Occasional deep dimming (30% chance) for dynamic effect
 
