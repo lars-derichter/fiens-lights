@@ -9,7 +9,7 @@ This document provides technical context for AI assistants (like Claude Code) wo
 **Language:** C++ (Arduino framework)
 **Main File:** `src/main.cpp` (~540 lines)
 
-**Purpose:** Control WS2812B LED strip with 7 different effects, adjustable via 3 potentiometers and 1 button.
+**Purpose:** Control WS2812B LED strip with 8 different effects, adjustable via 3 potentiometers and 1 button.
 
 ## Architecture
 
@@ -32,13 +32,14 @@ main.cpp
 │   ├── readBrightnessFromPot() → uint8_t
 │   ├── readHueFromPot() → uint16_t
 │   └── readSpeedFromPot() → uint16_t
-├── Effect Functions (lines 90-426)
+├── Effect Functions (lines 90-558)
 │   ├── effectOff()
 │   ├── whiteLight()
 │   ├── solidHue()
 │   ├── pulseHue()
 │   ├── chaseHue()
 │   ├── rainbowFade()
+│   ├── fireEffect()
 │   └── whiteFastFlicker()
 ├── setup() (lines 428-459)
 └── loop() (lines 461-end)
@@ -118,10 +119,10 @@ filtered = (filtered * 7 + raw) / 8;
 
 1. **Increment NUM_EFFECTS** (line 17)
    ```cpp
-   #define NUM_EFFECTS 8  // was 7
+   #define NUM_EFFECTS 9  // was 8
    ```
 
-2. **Create effect function** (after line 426)
+2. **Create effect function** (after line 558)
    ```cpp
    void myNewEffect()
    {
@@ -154,16 +155,16 @@ filtered = (filtered * 7 + raw) / 8;
    }
    ```
 
-3. **Add to switch statement** (around line 186)
+3. **Add to switch statement** (around line 680)
    ```cpp
-   case 7:
+   case 8:
      myNewEffect();
      break;
    ```
 
-4. **Add effect name** (around line 177)
+4. **Add effect name** (around line 638)
    ```cpp
-   case 7:
+   case 8:
      Serial.println("My New Effect");
      break;
    ```
@@ -311,7 +312,7 @@ filtered = (filtered * 15 + raw) / 16;
 - **Button check frequency:** Every loop iteration
 - **Pot read frequency:** Every effect iteration (includes smoothing)
 - **Serial output frequency:** 1Hz per effect
-- **Memory usage:** ~40% SRAM, ~30% Flash (with 7 effects)
+- **Memory usage:** ~40% SRAM, ~30% Flash (with 8 effects)
 
 ## Future Enhancement Ideas
 
@@ -337,6 +338,7 @@ This project evolved through these key stages:
 7. Added extensive documentation (README.md, CLAUDE.MD)
 8. Added hardware protection (470Ω resistor, 1000µF capacitor)
 9. Improved speed control: inverted mapping (10-1000ms) for intuitive feel
+10. Added fire effect with 6 color palettes (classic, hot, toxic, purple, ice, inferno)
 
 ## Quick Reference: Pin Assignments
 
@@ -350,7 +352,7 @@ This project evolved through these key stages:
 
 ## Critical: Before Committing Changes
 
-- [ ] Test all 7 effects
+- [ ] Test all 8 effects
 - [ ] Verify Serial Monitor output
 - [ ] Check potentiometer responsiveness
 - [ ] Test button switching

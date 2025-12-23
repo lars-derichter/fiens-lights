@@ -5,7 +5,7 @@ strips, featuring multiple effects with real-time control via potentiometers.
 
 ## Features
 
-This project provides **7 different lighting effects** with intuitive control:
+This project provides **8 different lighting effects** with intuitive control:
 
 1. **Off** - All LEDs turned off
 2. **White Light** - Adjustable color temperature (warm to cool white)
@@ -13,7 +13,8 @@ This project provides **7 different lighting effects** with intuitive control:
 4. **Pulse Hue** - Pulsing/breathing effect in selected color
 5. **Chase Hue** - Single LED chasing along the strip
 6. **Rainbow Fade** - Rainbow pattern with fade in/out
-7. **White Flicker** - Random white flicker effect (3 LEDs at a time)
+7. **Fire Effect** - Realistic fire simulation with 6 color palettes (classic, hot, toxic, purple, ice, inferno)
+8. **White Flicker** - Random white flicker effect (3 LEDs at a time)
 
 ## Hardware Requirements
 
@@ -126,7 +127,7 @@ power supply (not USB power) to avoid overloading the Arduino.
 
 ### Button Control
 
-- **Single Press**: Cycle through effects (0 → 1 → 2 → 3 → 4 → 5 → 6 → 0...)
+- **Single Press**: Cycle through effects (0 → 1 → 2 → 3 → 4 → 5 → 6 → 7 → 0...)
 - Effect changes are indicated in the Serial Monitor
 
 ### Potentiometer Controls
@@ -182,7 +183,23 @@ power supply (not USB power) to avoid overloading the Arduino.
 - **Speed (A2)**: Fade and rotation speed
 - Rainbow pattern that rotates and fades
 
-### Effect 6: White Flicker
+### Effect 6: Fire Effect
+
+- **Brightness (A0)**: Overall fire intensity
+- **Hue (A1)**: Selects fire color palette (6 options):
+  - **Classic Fire** (pot low): Red → Orange → Yellow (traditional campfire)
+  - **Hot Fire**: Orange → Yellow → White (intense heat)
+  - **Toxic Fire**: Green → Cyan → Blue (chemical/magical flame)
+  - **Purple Fire**: Purple → Magenta → Pink (mystical fire)
+  - **Ice Fire**: Blue → Cyan → White (cold flame)
+  - **Inferno** (pot high): Dark Red → Red → Orange (deep volcanic fire)
+- **Speed (A2)**: Flicker rate (lower = slower flicker, higher = rapid flicker)
+- Simulates realistic fire with:
+  - Position-based color gradient (bottom LEDs = inner fire color, top LEDs = outer flame color)
+  - Random brightness flickering (60-100% variation)
+  - Occasional deep dimming (30% chance) for dynamic effect
+
+### Effect 7: White Flicker
 
 - **Brightness (A0)**: Flicker intensity
 - **Hue (A1)**: Not used (always white)

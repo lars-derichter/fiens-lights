@@ -14,7 +14,7 @@
 #define POT_PIN_SPEED A2
 
 // Number of effects available
-#define NUM_EFFECTS 7
+#define NUM_EFFECTS 8
 
 Adafruit_NeoPixel strip(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
 
@@ -388,7 +388,139 @@ void rainbowFade()
   delay(speed);
 }
 
-// Effect 6: White Flicker
+// Effect 6: Fire Effect
+void fireEffect()
+{
+  int rawBrightness = analogRead(POT_PIN_BRIGHTNESS);
+  int rawHue = analogRead(POT_PIN_HUE);
+  int rawSpeed = analogRead(POT_PIN_SPEED);
+
+  uint8_t brightness = readBrightnessFromPot();
+  uint16_t huePot = readHueFromPot();
+  uint16_t speed = readSpeedFromPot();
+
+  // Map hue pot to select fire color palette (0-1023 -> 0-5)
+  uint8_t palette = map(analogRead(POT_PIN_HUE), 0, 1023, 0, 5);
+
+  // Debug output every 1000ms
+  static unsigned long lastPrint = 0;
+  if (millis() - lastPrint > 1000)
+  {
+    Serial.print("[Fire Effect] Brightness pot: ");
+    Serial.print(rawBrightness);
+    Serial.print(" -> ");
+    Serial.print(brightness);
+    Serial.print(" | Hue pot: ");
+    Serial.print(rawHue);
+    Serial.print(" -> Palette ");
+    Serial.print(palette);
+    Serial.print(" (");
+    switch(palette)
+    {
+      case 0: Serial.print("Classic Fire"); break;
+      case 1: Serial.print("Hot Fire"); break;
+      case 2: Serial.print("Toxic Fire"); break;
+      case 3: Serial.print("Purple Fire"); break;
+      case 4: Serial.print("Ice Fire"); break;
+      case 5: Serial.print("Inferno"); break;
+    }
+    Serial.print(") | Speed pot: ");
+    Serial.print(rawSpeed);
+    Serial.print(" -> ");
+    Serial.println(speed);
+    lastPrint = millis();
+  }
+
+  strip.clear();
+  strip.setBrightness(brightness);
+
+  // Color palette definitions (HSV hue values: 0-65535)
+  // Each palette has 3 colors: inner (bottom), middle, outer (top)
+  uint16_t innerHue, middleHue, outerHue;
+
+  switch(palette)
+  {
+    case 0: // Classic Fire: Red → Orange → Yellow
+      innerHue = 0;        // Red
+      middleHue = 5461;    // Orange (30°)
+      outerHue = 10923;    // Yellow (60°)
+      break;
+    case 1: // Hot Fire: Orange → Yellow → White-ish
+      innerHue = 5461;     // Orange
+      middleHue = 10923;   // Yellow
+      outerHue = 16384;    // Yellow-white
+      break;
+    case 2: // Toxic Fire: Green → Cyan → Blue
+      innerHue = 21845;    // Green (120°)
+      middleHue = 32768;   // Cyan (180°)
+      outerHue = 43691;    // Blue (240°)
+      break;
+    case 3: // Purple Fire: Purple → Magenta → Pink
+      innerHue = 49152;    // Purple (270°)
+      middleHue = 54613;   // Magenta (300°)
+      outerHue = 60075;    // Pink (330°)
+      break;
+    case 4: // Ice Fire: Blue → Cyan → White-ish
+      innerHue = 43691;    // Blue (240°)
+      middleHue = 32768;   // Cyan (180°)
+      outerHue = 16384;    // Light cyan
+      break;
+    case 5: // Inferno: Dark Red → Red → Orange
+      innerHue = 60000;    // Dark red/maroon
+      middleHue = 0;       // Red
+      outerHue = 5461;     // Orange
+      break;
+  }
+
+  // Draw fire on each LED
+  for (int i = 0; i < LED_COUNT; i++)
+  {
+    // Calculate position ratio (0.0 at bottom, 1.0 at top)
+    float position = (float)i / (float)(LED_COUNT - 1);
+
+    // Select color based on position
+    uint16_t hue;
+    uint8_t sat = 255;  // Full saturation by default
+
+    if (position < 0.33)
+    {
+      // Bottom third: inner fire color
+      hue = innerHue;
+    }
+    else if (position < 0.66)
+    {
+      // Middle third: blend between inner and middle
+      float blend = (position - 0.33) / 0.33;
+      hue = innerHue + (uint16_t)((middleHue - innerHue) * blend);
+    }
+    else
+    {
+      // Top third: blend between middle and outer
+      float blend = (position - 0.66) / 0.34;
+      hue = middleHue + (uint16_t)((outerHue - middleHue) * blend);
+      // Reduce saturation at the tips for white-hot effect
+      sat = 255 - (uint8_t)(blend * 80);
+    }
+
+    // Add random flicker to brightness (60-100% of set brightness)
+    uint8_t flicker = random(153, 256); // 60-100% of 255
+    uint8_t val = (uint8_t)((255 * flicker) / 256);
+
+    // Additional flicker: randomly dim some LEDs more
+    if (random(0, 100) < 30) // 30% chance
+    {
+      val = val / 2; // Dim to 50%
+    }
+
+    uint32_t color = strip.ColorHSV(hue, sat, val);
+    strip.setPixelColor(i, color);
+  }
+
+  strip.show();
+  delay(speed / 2); // Faster updates for more dynamic flicker
+}
+
+// Effect 7: White Flicker
 void whiteFastFlicker()
 {
   int rawBrightness = analogRead(POT_PIN_BRIGHTNESS);
@@ -504,6 +636,9 @@ void loop()
           Serial.println("Rainbow Fade");
           break;
         case 6:
+          Serial.println("Fire Effect");
+          break;
+        case 7:
           Serial.println("White Flicker");
           break;
         default:
@@ -542,6 +677,9 @@ void loop()
     rainbowFade();
     break;
   case 6:
+    fireEffect();
+    break;
+  case 7:
     whiteFastFlicker();
     break;
 
