@@ -358,6 +358,10 @@ void myNewEffect()
 }
 ```
 
+## More Information
+
+[Adafruit NeoPixel Überguide](https://learn.adafruit.com/adafruit-neopixel-uberguide/neopixel-strips)
+
 ## Credits
 
 - Built with Arduino and Adafruit NeoPixel library
