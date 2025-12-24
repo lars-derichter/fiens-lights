@@ -6,7 +6,7 @@
 #define LED_COUNT 12
 
 // Button configuration
-#define BUTTON_PIN 13
+#define BUTTON_PIN 2
 
 // Potentiometer configuration+
 #define POT_PIN_BRIGHTNESS A0

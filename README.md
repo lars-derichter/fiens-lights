@@ -83,7 +83,7 @@ reverse GND/5V if you prefer the opposite direction._
 ### Push Button
 
 ```
-Button Pin 1 → Arduino Pin 13
+Button Pin 1 → Arduino Pin 2
 Button Pin 2 → GND
 ```
 
@@ -237,7 +237,7 @@ Button pressed! Switching to effect 1: White Light
 ```cpp
 #define LED_PIN 6           // NeoPixel data pin
 #define LED_COUNT 12        // Number of LEDs in strip
-#define BUTTON_PIN 13       // Button pin
+#define BUTTON_PIN 2        // Button pin
 #define POT_PIN_BRIGHTNESS A0   // Brightness pot
 #define POT_PIN_HUE A1          // Hue/warmth pot
 #define POT_PIN_SPEED A2        // Speed pot
@@ -304,8 +304,8 @@ etc.):
 
 ### Button not working
 
-- Check wiring: One side to Pin 13, other to GND
-- Test by shorting Pin 13 to GND manually
+- Check wiring: One side to Pin 2, other to GND
+- Test by shorting Pin 2 to GND manually
 - Replace button if faulty
 - Check Serial Monitor for button press messages
 

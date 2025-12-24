@@ -18,7 +18,7 @@ This document provides technical context for AI assistants (like Claude Code) wo
   - **470Ω Resistor**: Between Pin 6 and LED data line (signal protection)
   - **Capacitor (220µF-1000µF)**: Across LED strip 5V/GND (power stability, prevents brownouts)
     - 220µF-470µF suitable for ≤12 LEDs; 1000µF for larger setups/longer wires
-- **Button**: Pin 13 with internal pull-up (active LOW)
+- **Button**: Pin 2 with internal pull-up (active LOW)
 - **Potentiometers** (all 10kΩ):
   - A0: Brightness (0-1023 → 0-255)
   - A1: Hue/Warmth (0-1023 → 0-65535 or RGB values)
@@ -346,7 +346,7 @@ This project evolved through these key stages:
 | Component | Pin | Direction | Notes |
 |-----------|-----|-----------|-------|
 | NeoPixel Data | D6 | Output | Via 470Ω resistor; PWM capable, but not used for PWM |
-| Button | D13 | Input | Pull-up enabled, active LOW |
+| Button | D2 | Input | Pull-up enabled, active LOW |
 | Brightness Pot | A0 | Input | Analog 0-1023 |
 | Hue Pot | A1 | Input | Analog 0-1023 |
 | Speed Pot | A2 | Input | Analog 0-1023, inverted mapping (low=slow) |
