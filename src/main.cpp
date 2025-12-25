@@ -191,10 +191,14 @@ void whiteLight()
     lastPrint = millis();
   }
 
+  // Create color with gamma correction
+  uint32_t color = strip.Color(r, g, b);
+  color = strip.gamma32(color);
+
   // Set all pixels to the white color
   for (int i = 0; i < LED_COUNT; i++)
   {
-    strip.setPixelColor(i, r, g, b);
+    strip.setPixelColor(i, color);
   }
 
   strip.setBrightness(brightness);
@@ -229,8 +233,8 @@ void solidHue()
   // Full saturation & value gives vivid color
   uint32_t c = strip.ColorHSV(hue, 255, 255);
 
-  // Optional: gamma correction makes colors look nicer to the eye
-  // c = strip.gamma32(c);
+  // Gamma correction for perceptually linear brightness
+  c = strip.gamma32(c);
 
   strip.setBrightness(brightness);
 
@@ -280,6 +284,7 @@ void pulseHue()
 
   // Set all pixels to the selected hue
   uint32_t c = strip.ColorHSV(hue, 255, 255);
+  c = strip.gamma32(c);
 
   for (int i = 0; i < LED_COUNT; i++)
   {
@@ -340,6 +345,7 @@ void chaseHue()
 
   // Set the selected hue
   uint32_t c = strip.ColorHSV(hue, 255, 255);
+  c = strip.gamma32(c);
 
   // Light up the current position
   strip.setPixelColor(position, c);
@@ -388,7 +394,15 @@ void rainbowFade()
     lastPrint = millis();
   }
 
-  strip.rainbow(hue);
+  // Manually create rainbow with gamma correction
+  for (int i = 0; i < LED_COUNT; i++)
+  {
+    uint16_t pixelHue = hue + (i * 65536L / LED_COUNT);
+    uint32_t color = strip.ColorHSV(pixelHue, 255, 255);
+    color = strip.gamma32(color);
+    strip.setPixelColor(i, color);
+  }
+
   strip.setBrightness(brightness);
   strip.show();
 
@@ -541,6 +555,7 @@ void fireEffect()
     }
 
     uint32_t color = strip.ColorHSV(hue, sat, val);
+    color = strip.gamma32(color);
     strip.setPixelColor(i, color);
   }
 
@@ -575,10 +590,13 @@ void whiteFastFlicker()
   strip.clear();
   strip.setBrightness(brightness);
 
+  uint32_t white = strip.Color(255, 255, 255);
+  white = strip.gamma32(white);
+
   for (int i = 0; i < 3; i++)
   {
     int randomPixel = random(0, LED_COUNT);
-    strip.setPixelColor(randomPixel, 255, 255, 255);
+    strip.setPixelColor(randomPixel, white);
   }
 
   strip.show();

@@ -86,8 +86,9 @@ filtered = (filtered * 7 + raw) / 8;
 2. Call helper functions to get smoothed/mapped values
 3. Debug output (every 1000ms)
 4. Apply effect logic
-5. Update strip with `strip.show()`
-6. Delay (usually `delay(speed)` or fixed)
+5. **Apply gamma correction** with `strip.gamma32(color)`
+6. Update strip with `strip.show()`
+7. Delay (usually `delay(speed)` or fixed)
 
 **Static variables in effects:**
 - Effects use `static` variables to maintain state between loop iterations
@@ -113,6 +114,41 @@ filtered = (filtered * 7 + raw) / 8;
 - RGB values are scientifically chosen for realistic color temperatures
 
 **To modify:** Adjust boundary values (146, 292, 438, 585, 731, 877) and RGB endpoints.
+
+### 6. Gamma Correction
+
+**Applied to all effects** for perceptually linear brightness.
+
+**Purpose:** Compensates for the non-linear relationship between:
+- Digital LED values (0-255)
+- Actual LED brightness output
+- Human brightness perception (logarithmic)
+
+**Implementation:**
+```cpp
+uint32_t color = strip.ColorHSV(hue, 255, 255);
+color = strip.gamma32(color);  // Apply gamma=2.6 correction
+strip.setPixelColor(i, color);
+```
+
+**Benefits:**
+- **Smoother fades**: Pulse and Rainbow effects fade perceptually evenly
+- **Better color accuracy**: RGB ratios remain consistent at all brightness levels
+- **Realistic fire**: Low-brightness flickers show better detail
+- **Accurate white temperature**: Color temperature gradient maintains warmth appearance
+
+**Where applied:**
+- solidHue() - line 233
+- pulseHue() - line 283
+- chaseHue() - line 344
+- rainbowFade() - lines 393-400 (manual rainbow with gamma)
+- fireEffect() - line 554
+- whiteFastFlicker() - line 590
+- whiteLight() - line 196
+
+**Note:** rainbowFade() manually implements the rainbow pattern (instead of using `strip.rainbow()`) to allow gamma correction on each pixel.
+
+**To disable:** Comment out all `strip.gamma32()` calls. Colors will appear brighter at mid-values but fades will look uneven.
 
 ## Common Modification Patterns
 
@@ -150,6 +186,9 @@ filtered = (filtered * 7 + raw) / 8;
      }
 
      // Effect logic here
+     uint32_t color = strip.ColorHSV(hue, 255, 255);
+     color = strip.gamma32(color);  // Apply gamma correction
+     strip.setPixelColor(0, color);
 
      strip.show();
      delay(speed);
@@ -280,8 +319,8 @@ filtered = (filtered * 15 + raw) / 16;
 - **Fix:** Reduce ratio in EMA (use 3/4 instead of 7/8)
 
 **Issue:** Colors don't match expected values
-- **Cause:** Gamma correction or color order
-- **Fix:** Verify `NEO_GRB` flag (line 19), check strip.gamma32() usage
+- **Cause:** Color order configuration or gamma correction disabled
+- **Fix:** Verify `NEO_GRB` flag (line 19), ensure `strip.gamma32()` calls are present in effects
 
 ## Code Style Notes
 
@@ -304,8 +343,8 @@ filtered = (filtered * 15 + raw) / 16;
   - `strip.setBrightness(0-255)`
   - `strip.setPixelColor(index, r, g, b)` or `(index, color)`
   - `strip.ColorHSV(hue, sat, val)` - hue: 0-65535, sat/val: 0-255
-  - `strip.rainbow(hue)` - sets rainbow pattern
-  - `strip.gamma32(color)` - gamma correction (currently commented out)
+  - `strip.Color(r, g, b)` - creates 32-bit color from RGB values
+  - `strip.gamma32(color)` - gamma correction (gamma=2.6, applied to all effects)
 
 ## Performance Notes
 
@@ -340,6 +379,7 @@ This project evolved through these key stages:
 8. Added hardware protection (470Ω resistor, 220µF-1000µF capacitor)
 9. Improved speed control: inverted mapping (10-1000ms) for intuitive feel
 10. Added fire effect with 6 color palettes (classic, hot, toxic, purple, ice, inferno)
+11. Implemented gamma correction (gamma=2.6) across all effects for perceptually linear brightness
 
 ## Quick Reference: Pin Assignments
 

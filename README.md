@@ -1,7 +1,8 @@
 # Fien's lights - NeoPixel LED Effects Controller
 
 A customizable LED light effects controller for Arduino Nano with NeoPixel LED
-strips, featuring multiple effects with real-time control via potentiometers.
+strips, featuring multiple effects with real-time control via potentiometers and
+gamma correction for perceptually smooth brightness transitions.
 
 ## Features
 
@@ -260,6 +261,31 @@ Button pressed! Switching to effect 1: White Light
 - Current: `filtered * 7 + raw) / 8`
 - More responsive: `filtered * 3 + raw) / 4`
 - More stable: `filtered * 15 + raw) / 16`
+
+### Gamma Correction
+
+All effects use gamma correction (gamma=2.6) for perceptually linear brightness
+transitions. This provides:
+
+- **Smoother fades**: Pulse and Rainbow effects appear to fade evenly instead of
+  changing quickly at low brightness and slowly at high brightness
+- **Better color accuracy**: Color ratios remain consistent across all brightness
+  levels
+- **Realistic fire effect**: Low brightness flickers show better detail with
+  realistic "ember glow"
+- **Accurate white temperature**: The 8-point color temperature gradient
+  maintains accurate warmth appearance at all brightness levels
+
+Gamma correction is applied using `strip.gamma32(color)` in all effect
+functions. This compensates for the non-linear relationship between LED power
+levels and human brightness perception.
+
+To disable gamma correction, remove or comment out the `strip.gamma32()` calls
+in each effect function (see
+[solidHue()](src/main.cpp#L233), [pulseHue()](src/main.cpp#L283),
+[chaseHue()](src/main.cpp#L344), [rainbowFade()](src/main.cpp#L398),
+[fireEffect()](src/main.cpp#L554), [whiteFastFlicker()](src/main.cpp#L590), and
+[whiteLight()](src/main.cpp#L196)).
 
 ### Porting to Other Arduino-Compatible Boards
 
