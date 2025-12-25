@@ -600,21 +600,20 @@ void setup()
   // Test potentiometer wiring
   Serial.println("\n=== Potentiometer Test ===");
   Serial.println("Testing all three potentiometers...");
-  for (int i = 0; i < 5; i++)
+  for (int i = 0; i < 2; i++)
   {
     int hueValue = analogRead(POT_PIN_HUE);
     int brightnessValue = analogRead(POT_PIN_BRIGHTNESS);
     int speedValue = analogRead(POT_PIN_SPEED);
-    Serial.print("Hue (A1): ");
-    Serial.print(hueValue);
-    Serial.print(" | Brightness (A0): ");
+    Serial.print("Brightness (A0): ");
     Serial.print(brightnessValue);
+    Serial.print(" | Hue (A1): ");
+    Serial.print(hueValue);
     Serial.print(" | Speed (A2): ");
     Serial.println(speedValue);
     delay(50);
   }
   Serial.println("Expected: values should range from ~0 to ~1023");
-  Serial.println("Turn each pot to verify they work independently!");
   Serial.println("=========================\n");
 }
 
