@@ -489,39 +489,40 @@ void fireEffect()
 
   // Color palette definitions (HSV hue values: 0-65535)
   // Each palette has 3 colors: inner (bottom), middle, outer (top)
+  // Note: Values adjusted to compensate for gamma correction's effect on perceived hue
   uint16_t innerHue, middleHue, outerHue;
 
   switch (palette)
   {
-  case 0:             // Classic Fire: Red → Orange → Yellow
-    innerHue = 0;     // Red
-    middleHue = 5461; // Orange (30°)
-    outerHue = 10923; // Yellow (60°)
+  case 0:            // Classic Fire: Red → Orange → Yellow
+    innerHue = 0;    // Red
+    middleHue = 4000; // Orange (shifted more toward red)
+    outerHue = 7500;  // Yellow (shifted significantly from 60° to ~41° to eliminate green)
     break;
-  case 1:              // Hot Fire: Orange → Yellow → White-ish
-    innerHue = 5461;   // Orange
-    middleHue = 10923; // Yellow
-    outerHue = 16384;  // Yellow-white
+  case 1:             // Hot Fire: Orange → Yellow → White-ish
+    innerHue = 4000;  // Orange (adjusted to match classic fire middle)
+    middleHue = 7500; // Yellow (adjusted to match classic fire outer)
+    outerHue = 11000; // Yellow-white (much warmer)
     break;
   case 2:              // Toxic Fire: Green → Cyan → Blue
-    innerHue = 21845;  // Green (120°)
-    middleHue = 32768; // Cyan (180°)
-    outerHue = 43691;  // Blue (240°)
+    innerHue = 22000;  // Green (slightly yellower to compensate)
+    middleHue = 33000; // Cyan (slightly adjusted)
+    outerHue = 43691;  // Blue (240° - unchanged)
     break;
   case 3:              // Purple Fire: Purple → Magenta → Pink
-    innerHue = 49152;  // Purple (270°)
-    middleHue = 54613; // Magenta (300°)
-    outerHue = 60075;  // Pink (330°)
+    innerHue = 49500;  // Purple (slightly adjusted)
+    middleHue = 54800; // Magenta (slightly adjusted)
+    outerHue = 60500;  // Pink (slightly adjusted)
     break;
   case 4:              // Ice Fire: Blue → Cyan → White-ish
-    innerHue = 43691;  // Blue (240°)
-    middleHue = 32768; // Cyan (180°)
-    outerHue = 16384;  // Light cyan
+    innerHue = 43691;  // Blue (240° - unchanged)
+    middleHue = 33000; // Cyan (matches toxic fire middle)
+    outerHue = 15000;  // Light cyan (adjusted to be cooler white)
     break;
   case 5:             // Inferno: Dark Red → Red → Orange
-    innerHue = 60000; // Dark red/maroon
-    middleHue = 0;    // Red
-    outerHue = 5461;  // Orange
+    innerHue = 60500; // Dark red/maroon (slightly adjusted)
+    middleHue = 0;    // Red (unchanged)
+    outerHue = 4500;  // Orange (matches classic fire middle)
     break;
   }
 
@@ -552,7 +553,9 @@ void fireEffect()
       float blend = (position - 0.66) / 0.34;
       hue = middleHue + (uint16_t)((outerHue - middleHue) * blend);
       // Reduce saturation at the tips for white-hot effect
-      sat = 255 - (uint8_t)(blend * 80);
+      // Hot fire palette gets extra desaturation for whiter tips
+      uint8_t satReduction = (palette == 1) ? 93 : 80;
+      sat = 255 - (uint8_t)(blend * satReduction);
     }
 
     // Add random flicker to brightness (60-100% of set brightness)
