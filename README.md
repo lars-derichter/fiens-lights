@@ -18,6 +18,10 @@ This project provides **8 different lighting effects** with intuitive control:
    hot, toxic, purple, ice, inferno)
 8. **White Flicker** - Random white flicker effect (3 LEDs at a time)
 
+## Video
+
+Check this video to see the completed project: https://youtu.be/B0sxnHQu-bU
+
 ## Hardware Requirements
 
 - **Arduino Nano** (or compatible)
@@ -250,10 +254,10 @@ Button pressed! Switching to effect 1: White Light
 
 ### Potentiometer Calibration
 
-Due to hardware tolerances, potentiometers rarely reach the full theoretical range of
-0-1023. The `POT_MIN` and `POT_MAX` defines compensate for this margin of error,
-ensuring you can access the full range of all effects (e.g., all fire palettes,
-all white temperatures, full brightness range).
+Due to hardware tolerances, potentiometers rarely reach the full theoretical
+range of 0-1023. The `POT_MIN` and `POT_MAX` defines compensate for this margin
+of error, ensuring you can access the full range of all effects (e.g., all fire
+palettes, all white temperatures, full brightness range).
 
 **To calibrate for your specific hardware:**
 
@@ -270,6 +274,7 @@ all white temperatures, full brightness range).
    ```
 
 **Example Serial Monitor output:**
+
 ```
 [Solid Hue] Brightness pot: 15 -> 0 | Hue pot: 15 -> 0 | Speed pot: N/A
 [Solid Hue] Brightness pot: 1000 -> 255 | Hue pot: 1000 -> 65535 | Speed pot: N/A
@@ -279,15 +284,17 @@ In this example, the pots range from 15 to 1000 (not the theoretical 0 to 1023),
 so `POT_MIN = 15` and `POT_MAX = 1000`.
 
 **Effects improved by calibration:**
-- **Fire Effect**: All 6 palettes become accessible (especially Inferno at high end)
+
+- **Fire Effect**: All 6 palettes become accessible (especially Inferno at high
+  end)
 - **White Light**: Full temperature range from very warm to very cool
 - **All effects**: True minimum (0) and maximum (255/65535) values are reachable
 
 ### Speed Range
 
 - Adjust in `readSpeedFromPot()` function (line 96)
-- Default: `map(filtered, POT_MIN, POT_MAX, 1000, 10)` (pot left = 1000ms very slow, pot
-  right = 10ms fast)
+- Default: `map(filtered, POT_MIN, POT_MAX, 1000, 10)` (pot left = 1000ms very
+  slow, pot right = 10ms fast)
 - For overall slower effects: Use higher values (e.g.,
   `map(filtered, POT_MIN, POT_MAX, 2000, 50)`)
 - For overall faster effects: Use lower values (e.g.,
@@ -308,8 +315,8 @@ transitions. This provides:
 
 - **Smoother fades**: Pulse and Rainbow effects appear to fade evenly instead of
   changing quickly at low brightness and slowly at high brightness
-- **Better color accuracy**: Color ratios remain consistent across all brightness
-  levels
+- **Better color accuracy**: Color ratios remain consistent across all
+  brightness levels
 - **Realistic fire effect**: Low brightness flickers show better detail with
   realistic "ember glow"
 - **Accurate white temperature**: The 8-point color temperature gradient
@@ -320,11 +327,10 @@ functions. This compensates for the non-linear relationship between LED power
 levels and human brightness perception.
 
 To disable gamma correction, remove or comment out the `strip.gamma32()` calls
-in each effect function (see
-[solidHue()](src/main.cpp#L233), [pulseHue()](src/main.cpp#L283),
-[chaseHue()](src/main.cpp#L344), [rainbowFade()](src/main.cpp#L398),
-[fireEffect()](src/main.cpp#L554), [whiteFastFlicker()](src/main.cpp#L590), and
-[whiteLight()](src/main.cpp#L196)).
+in each effect function (see [solidHue()](src/main.cpp#L233),
+[pulseHue()](src/main.cpp#L283), [chaseHue()](src/main.cpp#L344),
+[rainbowFade()](src/main.cpp#L398), [fireEffect()](src/main.cpp#L554),
+[whiteFastFlicker()](src/main.cpp#L590), and [whiteLight()](src/main.cpp#L196)).
 
 ### Porting to Other Arduino-Compatible Boards
 
