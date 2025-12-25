@@ -20,15 +20,18 @@ This document provides technical context for AI assistants (like Claude Code) wo
     - 220µF-470µF suitable for ≤12 LEDs; 1000µF for larger setups/longer wires
 - **Button**: Pin 2 with internal pull-up (active LOW)
 - **Potentiometers** (all 10kΩ):
-  - A0: Brightness (0-1023 → 0-255)
-  - A1: Hue/Warmth (0-1023 → 0-65535 or RGB values)
-  - A2: Speed (0-1023 → 1000-10ms delay, inverted for intuitive control)
+  - A0: Brightness (POT_MIN-POT_MAX → 0-255)
+  - A1: Hue/Warmth (POT_MIN-POT_MAX → 0-65535 or RGB values)
+  - A2: Speed (POT_MIN-POT_MAX → 1000-10ms delay, inverted for intuitive control)
+  - **Calibration**: POT_MIN and POT_MAX compensate for hardware tolerances (pots rarely reach exact 0/1023)
 
 ### Software Architecture
 
 ```
 main.cpp
-├── Configuration Defines (lines 4-17)
+├── Configuration Defines (lines 4-22)
+│   ├── Hardware pins (LED, button, pots)
+│   └── Potentiometer calibration (POT_MIN, POT_MAX)
 ├── Helper Functions (lines 28-88)
 │   ├── readBrightnessFromPot() → uint8_t
 │   ├── readHueFromPot() → uint16_t
@@ -65,9 +68,40 @@ int raw = analogRead(POT_PIN);  // Actual read
 
 **Critical:** Do NOT remove these dummy reads or reduce delays without testing. Removing them will cause potentiometer values to jump erratically.
 
-### 2. Exponential Moving Average (EMA) Smoothing
+### 2. Potentiometer Calibration (POT_MIN / POT_MAX)
 
-**Applied to all potentiometer readings (lines 40-41, 61-62, 82-83):**
+**Problem:** Potentiometers have hardware tolerances and rarely reach the theoretical full range (0-1023). This means some effect values become unreachable (e.g., Inferno fire palette, coolest white temperature, full brightness).
+
+**Solution (lines 16-19):**
+```cpp
+#define POT_MIN 15    // Actual minimum value pots reach
+#define POT_MAX 1000  // Actual maximum value pots reach
+```
+
+**Applied in all helper functions and special cases:**
+- `readBrightnessFromPot()` (line 50): `map(filtered, POT_MIN, POT_MAX, 0, 255)`
+- `readHueFromPot()` (line 73): `map(filtered, POT_MIN, POT_MAX, 0, 65535)`
+- `readSpeedFromPot()` (line 96): `map(filtered, POT_MIN, POT_MAX, 1000, 10)`
+- `whiteLight()` (line 120): Maps raw warmth value to 0-1023 for gradient calculations
+- `fireEffect()` (line 441): Maps hue pot to palette selection (0-5)
+
+**Important:** Each mapping is followed by `constrain()` to ensure values stay within bounds even if pot readings go slightly outside the calibrated range.
+
+**To calibrate for specific hardware:**
+1. Upload code and open Serial Monitor
+2. Turn each pot to minimum and maximum positions
+3. Note the actual raw values (not the mapped values)
+4. Update POT_MIN and POT_MAX defines accordingly
+5. Default values (15, 1000) work for most 10kΩ linear potentiometers
+
+**Critical effects that require calibration:**
+- **Fire Effect**: Without proper calibration, palette 5 (Inferno) may be unreachable
+- **White Light**: Without calibration, coolest white temperatures (daylight) may be unreachable
+- **All effects**: Without calibration, true minimum/maximum values may be inaccessible
+
+### 3. Exponential Moving Average (EMA) Smoothing
+
+**Applied to all potentiometer readings (lines 47, 70, 93):**
 ```cpp
 static int filtered = initial_value;
 filtered = (filtered * 7 + raw) / 8;
@@ -79,7 +113,7 @@ filtered = (filtered * 7 + raw) / 8;
 
 **Important:** Each helper function maintains its own `static` filtered value that persists between calls.
 
-### 3. Effect System Pattern
+### 4. Effect System Pattern
 
 **All effects follow this pattern:**
 1. Read raw potentiometer values (for debug output)
@@ -95,7 +129,7 @@ filtered = (filtered * 7 + raw) / 8;
 - Example: `pulseHue()` uses `static uint8_t brightness` to track fade position
 - **Important:** When switching effects, static variables retain their values
 
-### 4. Button Debouncing
+### 5. Button Debouncing
 
 **Implementation (lines 461-520):**
 - Uses dual-state tracking: `reading` (raw) and `buttonState` (stable)
@@ -105,17 +139,18 @@ filtered = (filtered * 7 + raw) / 8;
 
 **DO NOT** simplify this logic - it's required for reliable button operation.
 
-### 5. White Light Color Temperature
+### 6. White Light Color Temperature
 
-**8-point gradient (lines 121-156):**
-- Implemented as 7 if/else blocks with `map()` functions
+**8-point gradient (lines 123-180):**
+- Raw pot value is mapped from POT_MIN-POT_MAX to 0-1023 (line 120) to ensure full temperature range
+- Then mapped through 7 if/else blocks with RGB gradient calculations
 - 5 warm points (0-585), 3 cool points (585-1023)
 - Each segment maps RGB channels independently
 - RGB values are scientifically chosen for realistic color temperatures
 
 **To modify:** Adjust boundary values (146, 292, 438, 585, 731, 877) and RGB endpoints.
 
-### 6. Gamma Correction
+### 7. Gamma Correction
 
 **Applied to all effects** for perceptually linear brightness.
 
@@ -211,16 +246,16 @@ strip.setPixelColor(i, color);
 
 ### Changing Speed Range
 
-Edit `readSpeedFromPot()` line 86:
+Edit `readSpeedFromPot()` line 96:
 ```cpp
 // Current: 10-1000ms (inverted - pot left = slow, pot right = fast)
-uint16_t speed = map(filtered, 0, 1023, 1000, 10);
+uint16_t speed = map(filtered, POT_MIN, POT_MAX, 1000, 10);
 
 // Overall slower effects:
-uint16_t speed = map(filtered, 0, 1023, 2000, 50);
+uint16_t speed = map(filtered, POT_MIN, POT_MAX, 2000, 50);
 
 // Overall faster effects:
-uint16_t speed = map(filtered, 0, 1023, 500, 5);
+uint16_t speed = map(filtered, POT_MIN, POT_MAX, 500, 5);
 ```
 
 **Important:** The speed mapping is inverted (high pot value = low delay = fast) for intuitive control. The return type is `uint16_t` to accommodate delays >255ms.
@@ -236,7 +271,7 @@ Edit line 6:
 
 ### Adjusting Smoothing Responsiveness
 
-Edit the ratio in helper functions (lines 41, 62, 83):
+Edit the ratio in helper functions (lines 47, 70, 93):
 ```cpp
 // Current (balanced):
 filtered = (filtered * 7 + raw) / 8;
@@ -247,6 +282,29 @@ filtered = (filtered * 3 + raw) / 4;
 // More stable (slower, less jitter):
 filtered = (filtered * 15 + raw) / 16;
 ```
+
+### Calibrating Potentiometers
+
+If certain effect ranges are unreachable (e.g., can't select Inferno palette, can't reach coolest white), calibrate the pot range:
+
+1. **Test current range:**
+   - Upload code, open Serial Monitor
+   - Turn each pot fully left, note lowest raw value
+   - Turn each pot fully right, note highest raw value
+
+2. **Update defines (lines 18-19):**
+   ```cpp
+   #define POT_MIN 15    // Your lowest observed value
+   #define POT_MAX 1000  // Your highest observed value
+   ```
+
+3. **Verify calibration:**
+   - Turn pots to extremes again
+   - Mapped values should now reach true min/max (0, 255, 65535, etc.)
+   - Fire effect should cycle through all 6 palettes
+   - White light should reach both very warm and very cool
+
+**Default values (15, 1000)** work for most 10kΩ linear potentiometers, but adjust if needed.
 
 ## Debug Output Format
 
@@ -322,6 +380,10 @@ filtered = (filtered * 15 + raw) / 16;
 - **Cause:** Color order configuration or gamma correction disabled
 - **Fix:** Verify `NEO_GRB` flag (line 19), ensure `strip.gamma32()` calls are present in effects
 
+**Issue:** Can't reach certain effect values (e.g., Inferno palette, coolest white, full brightness)
+- **Cause:** Potentiometer hardware tolerances prevent reaching theoretical 0/1023 range
+- **Fix:** Calibrate POT_MIN and POT_MAX defines (lines 18-19) using Serial Monitor readings
+
 ## Code Style Notes
 
 - **Indentation:** 2 spaces (consistent throughout)
@@ -380,6 +442,7 @@ This project evolved through these key stages:
 9. Improved speed control: inverted mapping (10-1000ms) for intuitive feel
 10. Added fire effect with 6 color palettes (classic, hot, toxic, purple, ice, inferno)
 11. Implemented gamma correction (gamma=2.6) across all effects for perceptually linear brightness
+12. Added potentiometer calibration (POT_MIN/POT_MAX) to compensate for hardware tolerances and ensure full range accessibility
 
 ## Quick Reference: Pin Assignments
 
@@ -396,6 +459,7 @@ This project evolved through these key stages:
 - [ ] Test all 8 effects
 - [ ] Verify Serial Monitor output
 - [ ] Check potentiometer responsiveness
+- [ ] Verify pot calibration allows reaching all effect ranges (Inferno palette, coolest white, etc.)
 - [ ] Test button switching
 - [ ] Verify no compiler warnings
 - [ ] Check SRAM usage (`pio run -t size` or Arduino IDE output)
@@ -404,4 +468,4 @@ This project evolved through these key stages:
 
 ---
 
-**For AI Assistants:** When modifying this code, prioritize stability and user experience. The ADC crosstalk fix and smoothing algorithms are critical - don't simplify them without explicit user request and thorough testing. Always maintain the consistent debug output format and effect structure patterns.
+**For AI Assistants:** When modifying this code, prioritize stability and user experience. The ADC crosstalk fix, smoothing algorithms, and potentiometer calibration system are critical - don't simplify them without explicit user request and thorough testing. When adding new effects or modifying existing ones that use raw analog reads, always use POT_MIN/POT_MAX for mapping instead of hardcoded 0/1023 values. Always maintain the consistent debug output format and effect structure patterns.

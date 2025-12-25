@@ -13,6 +13,11 @@
 #define POT_PIN_HUE A1
 #define POT_PIN_SPEED A2
 
+// Potentiometer calibration (actual min/max values due to hardware tolerance)
+// Adjust these values based on your specific potentiometers
+#define POT_MIN 15    // Typical low-end value (instead of 0)
+#define POT_MAX 1000  // Typical high-end value (instead of 1023)
+
 // Number of effects available
 #define NUM_EFFECTS 8
 
@@ -41,8 +46,9 @@ uint8_t readBrightnessFromPot()
   static int filtered = 512; // Start at mid brightness
   filtered = (filtered * 7 + raw) / 8;
 
-  // Map 0..1023 to 0..255 (NeoPixel brightness is 8-bit)
-  uint8_t brightness = map(filtered, 0, 1023, 0, 255);
+  // Map actual pot range to 0..255 (NeoPixel brightness is 8-bit)
+  uint8_t brightness = map(filtered, POT_MIN, POT_MAX, 0, 255);
+  brightness = constrain(brightness, 0, 255); // Ensure we stay within bounds
   return brightness;
 }
 
@@ -63,8 +69,9 @@ uint16_t readHueFromPot()
   static int filtered = 0;
   filtered = (filtered * 7 + raw) / 8;
 
-  // Map 0..1023 to 0..65535 (NeoPixel HSV hue is 16-bit)
-  uint32_t hue = (uint32_t)filtered * 65535UL / 1023UL;
+  // Map actual pot range to 0..65535 (NeoPixel HSV hue is 16-bit)
+  uint32_t hue = map(filtered, POT_MIN, POT_MAX, 0, 65535);
+  hue = constrain(hue, 0, 65535); // Ensure we stay within bounds
   return (uint16_t)hue;
 }
 
@@ -85,8 +92,9 @@ uint16_t readSpeedFromPot()
   static int filtered = 512; // Start at mid speed
   filtered = (filtered * 7 + raw) / 8;
 
-  // Map 0..1023 to 1000..10 (delay in ms - lower = slower, higher = faster)
-  uint16_t speed = map(filtered, 0, 1023, 1000, 10);
+  // Map actual pot range to 1000..10 (delay in ms - lower = slower, higher = faster)
+  uint16_t speed = map(filtered, POT_MIN, POT_MAX, 1000, 10);
+  speed = constrain(speed, 10, 1000); // Ensure we stay within bounds
   return speed;
 }
 
@@ -108,7 +116,9 @@ void whiteLight()
   uint8_t brightness = readBrightnessFromPot();
 
   // Use hue pot to control warmth (0 = very warm, 1023 = very cool)
-  int warmth = rawWarmth;
+  // Map actual pot range to 0-1023 to ensure full temperature range is accessible
+  int warmth = map(rawWarmth, POT_MIN, POT_MAX, 0, 1023);
+  warmth = constrain(warmth, 0, 1023);
 
   // Map warmth to RGB values with 8 points (5 warm, 3 cool)
   // Point 0 (0): Very warm candlelight (255, 147, 41)
@@ -429,8 +439,9 @@ void fireEffect()
   uint16_t huePot = readHueFromPot();
   uint16_t speed = readSpeedFromPot();
 
-  // Map hue pot to select fire color palette (0-1023 -> 0-5)
-  uint8_t palette = map(analogRead(POT_PIN_HUE), 0, 1023, 0, 5);
+  // Map hue pot to select fire color palette (using calibrated range -> 0-5)
+  uint8_t palette = map(analogRead(POT_PIN_HUE), POT_MIN, POT_MAX, 0, 5);
+  palette = constrain(palette, 0, 5); // Ensure we can reach all palettes
 
   // Debug output every 1000ms
   static unsigned long lastPrint = 0;

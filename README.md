@@ -242,25 +242,64 @@ Button pressed! Switching to effect 1: White Light
 #define POT_PIN_BRIGHTNESS A0   // Brightness pot
 #define POT_PIN_HUE A1          // Hue/warmth pot
 #define POT_PIN_SPEED A2        // Speed pot
+
+// Potentiometer calibration (adjust for your hardware)
+#define POT_MIN 15          // Actual minimum value your pots reach
+#define POT_MAX 1000        // Actual maximum value your pots reach
 ```
+
+### Potentiometer Calibration
+
+Due to hardware tolerances, potentiometers rarely reach the full theoretical range of
+0-1023. The `POT_MIN` and `POT_MAX` defines compensate for this margin of error,
+ensuring you can access the full range of all effects (e.g., all fire palettes,
+all white temperatures, full brightness range).
+
+**To calibrate for your specific hardware:**
+
+1. Upload the code and open Serial Monitor (9600 baud)
+2. Select any effect that shows potentiometer values (e.g., Effect 2: Solid Hue)
+3. Turn **each potentiometer fully counter-clockwise** and note the lowest "raw"
+   value shown
+4. Turn **each potentiometer fully clockwise** and note the highest "raw" value
+   shown
+5. Update the defines in [main.cpp](src/main.cpp) (lines 18-19):
+   ```cpp
+   #define POT_MIN 15    // Use the lowest value you observed
+   #define POT_MAX 1000  // Use the highest value you observed
+   ```
+
+**Example Serial Monitor output:**
+```
+[Solid Hue] Brightness pot: 15 -> 0 | Hue pot: 15 -> 0 | Speed pot: N/A
+[Solid Hue] Brightness pot: 1000 -> 255 | Hue pot: 1000 -> 65535 | Speed pot: N/A
+```
+
+In this example, the pots range from 15 to 1000 (not the theoretical 0 to 1023),
+so `POT_MIN = 15` and `POT_MAX = 1000`.
+
+**Effects improved by calibration:**
+- **Fire Effect**: All 6 palettes become accessible (especially Inferno at high end)
+- **White Light**: Full temperature range from very warm to very cool
+- **All effects**: True minimum (0) and maximum (255/65535) values are reachable
 
 ### Speed Range
 
-- Adjust in `readSpeedFromPot()` function (line 86)
-- Default: `map(filtered, 0, 1023, 1000, 10)` (pot left = 1000ms very slow, pot
+- Adjust in `readSpeedFromPot()` function (line 96)
+- Default: `map(filtered, POT_MIN, POT_MAX, 1000, 10)` (pot left = 1000ms very slow, pot
   right = 10ms fast)
 - For overall slower effects: Use higher values (e.g.,
-  `map(filtered, 0, 1023, 2000, 50)`)
+  `map(filtered, POT_MIN, POT_MAX, 2000, 50)`)
 - For overall faster effects: Use lower values (e.g.,
-  `map(filtered, 0, 1023, 500, 5)`)
+  `map(filtered, POT_MIN, POT_MAX, 500, 5)`)
 
 ### Smoothing
 
 - Potentiometer readings use exponential moving average
-- Adjust smoothing in helper functions (lines 41, 62, 83)
-- Current: `filtered * 7 + raw) / 8`
-- More responsive: `filtered * 3 + raw) / 4`
-- More stable: `filtered * 15 + raw) / 16`
+- Adjust smoothing in helper functions (lines 47, 70, 93)
+- Current: `(filtered * 7 + raw) / 8`
+- More responsive: `(filtered * 3 + raw) / 4`
+- More stable: `(filtered * 15 + raw) / 16`
 
 ### Gamma Correction
 
