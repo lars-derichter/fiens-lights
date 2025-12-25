@@ -190,14 +190,39 @@ void whiteLight()
     Serial.print(" -> ");
     Serial.print(brightness);
     Serial.print(" | Warmth pot: ");
-    Serial.print(warmth);
-    Serial.print(" -> RGB(");
-    Serial.print(r);
-    Serial.print(",");
-    Serial.print(g);
-    Serial.print(",");
-    Serial.print(b);
-    Serial.println(")");
+    Serial.print(rawWarmth);
+    Serial.print(" -> ");
+
+    // Determine warmth range and description
+    if (warmth < 146)
+    {
+      Serial.println("Point 0-1 (Very warm candlelight to Warm amber)");
+    }
+    else if (warmth < 292)
+    {
+      Serial.println("Point 1-2 (Warm amber to Warm)");
+    }
+    else if (warmth < 438)
+    {
+      Serial.println("Point 2-3 (Warm to Soft warm)");
+    }
+    else if (warmth < 585)
+    {
+      Serial.println("Point 3-4 (Soft warm to Warm white)");
+    }
+    else if (warmth < 731)
+    {
+      Serial.println("Point 4-5 (Warm white to Slightly cool)");
+    }
+    else if (warmth < 877)
+    {
+      Serial.println("Point 5-6 (Slightly cool to Cool)");
+    }
+    else
+    {
+      Serial.println("Point 6-7 (Cool to Very cool daylight)");
+    }
+
     lastPrint = millis();
   }
 
